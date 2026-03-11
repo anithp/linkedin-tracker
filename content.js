@@ -153,11 +153,34 @@
 
   document.addEventListener("click", (e) => {
     const target = e.target;
+
+    // Debug: log ALL clicks with element info
+    if (DEBUG) {
+      let el = target;
+      const chain = [];
+      for (let i = 0; i < 5 && el; i++) {
+        const tag = el.tagName?.toLowerCase() || "?";
+        const cls = (el.className && typeof el.className === "string") ? el.className.substring(0, 80) : "";
+        const role = el.getAttribute?.("role") || "";
+        const aria = el.getAttribute?.("aria-label") || "";
+        const txt = (el.innerText || "").trim().substring(0, 30);
+        chain.push(`${tag}${role ? "[role=" + role + "]" : ""}${aria ? "[aria=" + aria + "]" : ""} cls="${cls}" txt="${txt}"`);
+        el = el.parentElement;
+      }
+      console.log("[PAN] RAW CLICK chain:", chain.join(" -> "));
+    }
+
     const clickable =
       target.closest("button") ||
       target.closest("[role='button']") ||
       target.closest("[role='menuitem']") ||
-      target.closest("a");
+      target.closest("[role='option']") ||
+      target.closest("a") ||
+      target.closest("span[class*='react']") ||
+      target.closest("div[class*='social-action']") ||
+      target.closest("div[class*='comment']") ||
+      target.closest("[class*='reactions-react']") ||
+      target.closest("[data-reaction-type]");
 
     if (!clickable) return;
 
